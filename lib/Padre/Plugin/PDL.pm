@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Padre::Plugin ();
 
-our $VERSION = '0.02';
+our $VERSION = '0.04';
 
 our @ISA = 'Padre::Plugin';
 
@@ -99,13 +99,15 @@ Padre::Plugin::PDL - PDL support for Padre
 
 =head1 SYNOPSIS
 
-    cpan Padre::Plugin::PDL;
+    cpan Padre::Plugin::PDL
 
 Then use it via L<Padre>, The Perl IDE.
 
 =head1 DESCRIPTION
 
 Once enabled, one will automatically get the following features:
+
+=over
 
 =item Context-sensitive help integration
 

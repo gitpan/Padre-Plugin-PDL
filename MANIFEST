@@ -20,8 +20,7 @@ MYMETA.json
 MYMETA.yml
 Padre-Plugin-PDL.fbp
 padre.yml
-script.pl
-share/locale/Padre__Plugin__PDL-ar.mo
+README
 share/locale/Padre__Plugin__PDL-ar.po
 t/00-compile.t
 t/01-eol.t

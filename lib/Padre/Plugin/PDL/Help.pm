@@ -7,7 +7,7 @@ use warnings;
 # For Perl 6 documentation support
 use Padre::Help ();
 
-our $VERSION = '0.02';
+our $VERSION = '0.04';
 
 our @ISA = 'Padre::Help';
 
@@ -17,30 +17,26 @@ our @ISA = 'Padre::Help';
 sub help_init {
 	my $self = shift;
 
-	require Capture::Tiny;
-	my $help_list_output = Capture::Tiny::capture_stdout(
-		sub {
-			require PDL::Doc::Perldl;
-			PDL::Doc::Perldl::apropos('.*');
-			return;
-		}
-	);
+	eval {
+		require PDL::Doc;
 
-	my $help = ();
-	my $topic;
-	for my $line ( split /\n/, $help_list_output ) {
-		if ( $line =~ /^(\S+)\s+(.+)$/ ) {
-			$topic = $1;
-			$help->{$topic} = $2;
-		} else {
-			if ( defined $topic ) {
-				$line =~ s/^\s+//;
-				$help->{$topic} .= " $line";
+		# Find the pdl documentation
+		my $pdldoc;
+		DIRECTORY: for my $dir (@INC) {
+			my $file = "$dir/PDL/pdldoc.db";
+			if ( -f $file ) {
+				$pdldoc = new PDL::Doc($file);
+				last DIRECTORY;
 			}
 		}
-	}
 
-	$self->{help} = $help;
+		if ( defined $pdldoc ) {
+			$self->{pdl_help} = $pdldoc->gethash;
+		}
+	};
+	if ($@) {
+		warn "Failed to load PDL docs: $@";
+	}
 
 	# Workaround to get Perl + PDL help
 	require Padre::Document::Perl::Help;
@@ -56,8 +52,34 @@ sub help_render {
 	my $topic = shift;
 
 	my ( $html, $location );
-	if ( exists $self->{help}->{$topic} ) {
-		$html     = $self->{help}->{$topic};
+	my $pdl_help = $self->{pdl_help};
+	if ( defined $pdl_help && exists $pdl_help->{$topic} ) {
+		$html = '';
+		my $help         = $pdl_help->{$topic};
+		my %SECTION_NAME = (
+			Module  => 'Module',
+			File    => 'File',
+			Ref     => 'Reference',
+			Sig     => 'Signature',
+			Bad     => 'Bad values',
+			Usage   => 'Usage',
+			Example => 'Example',
+		);
+		foreach my $section (qw(Module File Ref Sig Bad Usage Example)) {
+			if ( defined $help->{$section} ) {
+				my $help = $help->{$section};
+				my $name = $SECTION_NAME{$section};
+				if (   $section eq 'Example'
+					or $section eq 'Sig'
+					or $section eq 'Usage' )
+				{
+					$html .= "<p><b>$name</b><pre>" . $help . "</pre></p>";
+				} else {
+					$html .= "<p><b>$name</b><br>" . $help . "</p>";
+				}
+			}
+		}
+
 		$location = $topic;
 	} else {
 		( $html, $location ) = $self->{p5_help}->help_render($topic);
@@ -73,7 +95,7 @@ sub help_list {
 	my $self = shift;
 
 	# Return a unique sorted index
-	my @index = keys $self->{help};
+	my @index = keys %{ $self->{pdl_help} };
 
 	# Add Perl 5 help index to PDL
 	foreach my $topic ( @{ $self->{p5_help}->help_list } ) {
