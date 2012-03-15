@@ -7,9 +7,9 @@ build_requires:
   Locale::Msgfmt: 0.15
   Test::More: 0.88
 configure_requires:
-  ExtUtils::MakeMaker: 0
+  ExtUtils::MakeMaker: 6.59
 dynamic_config: 0
-generated_by: 'ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Module::Install version 1.06, CPAN::Meta::Converter version 2.112150'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -17,10 +17,18 @@ meta-spec:
 name: Padre-Plugin-PDL
 no_index:
   directory:
-    - t
+    - eg
     - inc
+    - share
+    - t
 requires:
+  Moose: 2.0402
   PDL: v2.4.10
   Padre: 0.94
   perl: 5.008
-version: 0.04
+resources:
+  bugtracker: http://padre.perlide.org/
+  homepage: http://padre.perlide.org/trac/wiki/PadrePluginPDL
+  license: http://dev.perl.org/licenses/
+  repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-PDL
+version: 0.05

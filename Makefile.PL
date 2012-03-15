@@ -5,8 +5,9 @@ use inc::Module::Install;
 name 'Padre-Plugin-PDL';
 all_from 'lib/Padre/Plugin/PDL.pm';
 
-requires 'Padre'         => '0.94';
-requires 'PDL'           => '2.4.10';
+requires 'Padre' => '0.94';
+requires 'Moose' => '2.0402';
+requires 'PDL'   => '2.4.10';
 
 test_requires 'Test::More' => '0.88';
 

@@ -23,6 +23,7 @@ no_index:
     - share
     - t
 requires:
+  Moose: 2.0402
   PDL: 2.4.10
   Padre: 0.94
   perl: 5.8.0
@@ -31,4 +32,4 @@ resources:
   homepage: http://padre.perlide.org/trac/wiki/PadrePluginPDL
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-PDL
-version: 0.04
+version: 0.05

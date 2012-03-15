@@ -5,14 +5,16 @@ use strict;
 use warnings;
 use Padre::Plugin ();
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our @ISA = 'Padre::Plugin';
 
 # Child modules we need to unload when disabled
 use constant CHILDREN => qw{
+	Padre::Plugin::PDL
 	Padre::Plugin::PDL::Document
 	Padre::Plugin::PDL::Help
+	Padre::Plugin::PDL::Util
 };
 
 # Called when Padre wants to check what package versions this
@@ -23,6 +25,7 @@ sub padre_interfaces {
 		'Padre::Document'       => 0.94,
 		'Padre::Wx::Main'       => 0.94,
 		'Padre::Wx::Role::Main' => 0.94,
+		'Padre::Help'           => 0.94,
 		;
 }
 
@@ -56,6 +59,15 @@ sub plugin_enable {
 	# Update configuration attribute
 	$self->{config} = $config;
 
+	# Generate missing Padre's events
+	# TODO remove once Padre 0.96 is released
+	require Padre::Plugin::PDL::Role::NeedsPluginEvent;
+	Padre::Plugin::PDL::Role::NeedsPluginEvent->meta->apply( $self->main );
+
+	# Highlight the current editor. This is needed when a plugin is enabled
+	# for the first time
+	$self->editor_changed;
+
 	return 1;
 }
 
@@ -86,6 +98,33 @@ sub plugin_disable {
 #
 #	return $menu_item;
 #}
+
+# Called when an editor is opened
+sub editor_enable {
+	my $self     = shift;
+	my $editor   = shift;
+	my $document = shift;
+
+	# Only on Perl documents
+	return unless $document->isa('Padre::Document::Perl');
+
+	require Padre::Plugin::PDL::Util;
+	Padre::Plugin::PDL::Util::add_pdl_keywords_highlighting( $document, $editor );
+}
+
+# Called when an editor is changed
+sub editor_changed {
+	my $self     = shift;
+	my $document = $self->current->document or return;
+	my $editor   = $self->current->editor or return;
+
+	# Only on Perl documents
+	return unless $document->isa('Padre::Document::Perl');
+
+	require Padre::Plugin::PDL::Util;
+	Padre::Plugin::PDL::Util::add_pdl_keywords_highlighting( $document, $editor );
+}
+
 
 1;
 
